@@ -24,6 +24,8 @@ for p in [10,15,20,25,30]:
     print a[-1]
 
 
+
+
 ################################################
 
 from sklearn.linear_model import LogisticRegression
