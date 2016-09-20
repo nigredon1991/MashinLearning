@@ -25,20 +25,24 @@ class N1:
 
     def sigmoid(x,deriv=False):
         if(deriv==True):
-            return f(x)*(1-f(x))
+            return (x*(1-x))
         return 1/(1+np.exp(-x))
 
     def __init__(self, numberW = 1,func = sigmoid):
-        self.Weights = np.random.random((numberW,1)) #Веса входных синапсов
+        self.Weights = np.random.random((numberW,)) #Веса входных синапсов
         self.func = func                             # Активационная функция
         self.train_value = 0                         # Значение выданное при последнем обучении
     def predict(self,X):
         self.train_value = self.func(np.dot(X,self.Weights))
+        return self.train_value
 
     def learning(self,X, real_value, coef_learning = 0.1):
         delta = real_value - self.train_value
         self.Weights = self.Weights + coef_learning * delta * self.func(self.train_value,True) * X
 
 
-" x = N1(10)"
-# x.predict(np.array([1,1,1,1,1,1,1,1,1,1]))
+X = np.array([1,1,1,1,1, 1,1,1,1,1])
+neir = N1(10)
+neir.predict(X)
+neir.learning(X,10)
+neir.predict(X)
