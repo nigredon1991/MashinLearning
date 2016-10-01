@@ -19,6 +19,8 @@ X_train = data.drop("label", axis = 1) # 42000 * 784
 #будет ещё выходной нейрон с 8 входами
 
 
+
+
 class N1:
     "neiron with N inputs"
 
@@ -41,8 +43,25 @@ class N1:
         self.Weights = self.Weights + coef_learning * delta * self.func(self.train_value,True) * X
 
 
-X = np.array([1,1,1,1,1, 1,1,1,1,1])
-neir = N1(10)
-neir.predict(X)
-neir.learning(X,10)
-neir.predict(X)
+#X = np.array([1,1,1,1,1, 1,1,1,1,1])
+#neir = N1(10)
+#neir.predict(X)
+#neir.learning(X,10)
+#neir.predict(X)
+
+
+# 42000 * 784
+#возьмём нейроны по 98 входов: 8*98 = 784
+#будут ещё выходные нейроны с 8 входами
+
+NN1 = [N1(98),N1(98),N1(98),N1(98),N1(98),N1(98),N1(98),N1(98)]
+NN2 = [N1(8),N1(8),N1(8),N1(8),N1(8),N1(8),N1(8),N1(8),N1(8),N1(8)]
+X2 = np.array([0, 0, 0, 0, 0, 0, 0, 0])
+a = 0
+for i in range(1,42000):
+    for j in range(1,8):
+        for k in range(1,98):
+            X2[j-1]= NN1[j].predict(X_train[X_train.columns[(k*j-1):(k*j)]])
+    for j in range(0,9):
+        a = NN2[j].predict(X2)
+        NN2[j].learning(X2,lambda x: 1 if(y_train[i] == j) else 0)
