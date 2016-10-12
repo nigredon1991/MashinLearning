@@ -2,6 +2,19 @@
 import numpy as np
 import pandas
 
+
+def f(x):
+    return x
+
+def nonlin(x,deriv=False):
+    if(deriv==True):
+        return f(x)*(1-f(x))
+    return 1/(1+np.exp(-x))
+# 8*98 = 784
+
+
+
+
 class N1:
     "neiron with N inputs"
 
@@ -10,7 +23,6 @@ class N1:
         if(deriv==True):
             return (x*(1-x))
         return 1/(1+np.exp(-x))
-
 
     def __init__(self, numberW = 1,func = sigmoid):
         self.Weights = np.random.random(numberW).T
@@ -63,11 +75,15 @@ for i in train_number:
                 deltaN2[j] = NN2[j].learning(X2,1)
             else:
                 deltaN2[j] = NN2[j].learning(X2,0)
+        deltaN1 = np.array([0.0,0.0,0.0,0.0,0.0, 0.0,0.0,0.0]) #8
+        for j in range(0,7):
+            for index in range(0,9):
+                deltaN1[j] += deltaN2[index] * NN2[index].Weights[j]
         for j in range(1,8):
                 #X2[j-1] = NN1[j].learning(X_train[X_train.columns[((j-1)*98):(j*98)]][i:(i+1)],deltaN2[j])
-                X2[j-1] = NN1[j].learning(X_train[i][((j-1)*98):(j*98)],deltaN2[j])
+                X2[j-1] = NN1[j].learning(X_train[i][((j-1)*98):(j*98)],deltaN1[j])
         if max(deltaN2) < 0.1:
-            k = 1000
+            k = 1001
 print "time for learning: " + str(time.clock() - moment)
 
 validation = 0
