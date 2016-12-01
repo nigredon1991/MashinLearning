@@ -13,6 +13,14 @@ def nonlin(x,deriv=False):
 # 8*98 = 784
 
 
+def thresholdF(x,deriv=False):
+        if(deriv==True):
+            return 0
+        if(x<0):
+            return 0
+        else:
+            return 1
+
 
 
 class N1:
@@ -24,10 +32,13 @@ class N1:
             return (x*(1-x))
         return 1/(1+np.exp(-x))
 
+
+
     def __init__(self, numberW = 1,func = sigmoid):
         self.Weights = np.random.random(numberW).T
+        #self.plus1 = 1
         self.func = func
-        self.train_value = 0
+        self.train_value = 0.0
     def predict(self,X):
         #direct direction
         self.train_value = self.func(np.dot(X,self.Weights))
@@ -37,6 +48,7 @@ class N1:
         #reverse direction
         delta = real_value - self.train_value
         self.Weights = self.Weights + coef_learning * delta * self.func(self.train_value,True) * X
+        #self.plus1 = self.plus1 + coef_learning * delta * self.func(self.train_value,True)
         return delta
 
 # 42000 * 784
@@ -122,29 +134,38 @@ for j in range(0,9):
 X = np.array([
     [1,1],
     [0,1],
-    [0,1],
+    [1,0],
     [0,0]
 ])
 
 y = np.array([0,1,1,0])
 
 N_1 = [N1(2),N1(2)]
-N_2 = N1(2)
-X1 = np.array([0,0])
-out = 0
-delta = 0
-for i in range(0,10):
+N_2 = [N1(2),N1(2)]
+X1 = np.array([0.0,0.0])
+X2 = np.array([0.0,0.0])
+out = N1(2)
+delta = [0.0,0.0]
+delta_out = 0
+for i in range(0,1000):
     for j in range(0,4):
+
         for k in [0,1]:
             X1[k] = N_1[k].predict(X[j])
-        N_2.predict(X1)
-        delta = N_2.learning(X1,y[j])
         for k in [0,1]:
-            N_1[k].learning(X[j],delta*N_2.Weights[k])
+            X2[k] = N_2[k].predict(X1)
+        out.predict(X2)
+
+        delta_out =  out.learning(X2,y[j])
+        for k in [0,1]:
+            delta[k] = N_2[k].learning(X1,delta_out*out.Weights[k])
+        for k in [0,1]:
+            N_1[k].learning(X[j],delta[k]*N_2[k].Weights[k])
 
 #test for test
 for j in range(0,4):
     for k in [0,1]:
         X1[k] = N_1[k].predict(X[j])
-    print N_2.predict(X1)
-
+    for k in [0,1]:
+        X2[k] = N_2[k].predict(X1)
+    print out.predict(X2)
