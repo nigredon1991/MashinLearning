@@ -79,15 +79,15 @@ class NN:
             self.size_in = self_new.size_in
             self.size_hidden = self_new.size_hidden
             self.size_out = self_new.size_out
-            self.input = np.ones(size_in)
-            self.weights0 = np.random.random([size_in,size_hidden])-0.5
-            self.delta_hidden = np.zeros(size_hidden)
-            self.free_mem_h = np.ones(size_hidden)*0.5
-            self.train_values_h = np.zeros(size_hidden)####
-            self.weights1 = np.random.random([size_hidden, size_out])-0.5
-            self.delta_out = np.zeros(size_out)
-            self.free_mem_out = np.ones(size_out)*0.5
-            self.train_values_out = np.random.random(size_out)
+            self.input = self_new.input
+            self.weights0 = self_new.weights0
+            self.delta_hidden = self_new.delta_hidden
+            self.free_mem_h = self_new.free_mem_h
+            self.train_values_h = self_new.train_values_h
+            self.weights1 = self_new.weights1
+            self.delta_out = self_new.delta_out
+            self.free_mem_out = self_new.free_mem_out
+            self.train_values_out = self_new.train_values_out
         print self
 
 data = pandas.read_csv('train.csv')
