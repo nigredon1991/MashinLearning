@@ -117,7 +117,8 @@ class NN:
             for k in range(0,self.size_hidden):
                 self.weights0[i][k] = self.weights0[i][k] + self.delta_hidden[k] * coef * self.train_values_h[k] * sigmoid(self.train_values_h[k],deriv = True)
                 self.free_mem_h[i] = self.free_mem_h[i] + self.delta_hidden[k] * coef * self.train_values_h[k] * sigmoid(self.train_values_h[k],deriv = True)
-
+        print self.delta_hidden
+        self.delta_hidden = np.zeros(self.size_hidden)
         return 1
 
 
@@ -130,7 +131,7 @@ y =np.array( [[1,0],[0,1],[0,1],[1,0]])
 
 MyNN = NN( 2,2,2)
 
-for j in range (1,1000):
+for j in range (1,800):
     for i in range(0,4):
         MyNN.learning(X = X[i],y = y[i],coef = 1.0/j)
 
