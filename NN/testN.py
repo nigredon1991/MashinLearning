@@ -1,9 +1,9 @@
-#
+# -*- coding: utf-8 -*-
 import numpy as np
 import pandas
-np.random.seed(0)
+alfa = 1/100.0 # 
 def sigmoid(x):
-    return 1/(1+np.exp(-x))
+    return 1/(1+np.exp(-x*alfa))
 
     
     
