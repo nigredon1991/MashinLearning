@@ -19,19 +19,19 @@ class NN:
 		self.bias_h = []
 		self.train_values_h = []
 
-    	self.weights.append(np.random.random([size_in,size_hidden[i]]))
-        self.delta_hidden.append( = np.zeros(size_hidden))  #error for one neiron, and after local gragient
+    	self.weights.append(np.random.random([size_in,self.size_hidden[i]]))
+        self.delta_hidden.append( = np.zeros(self.size_hidden))  #error for one neiron, and after local gragient
         self.bias_h.append(np.random.random_sample())
-        self.train_values_h.append(np.zeros(size_hidden[i]))#last calculate out of neiron
+        self.train_values_h.append(np.zeros(self.size_hidden[i]))#last calculate out of neiron
         
-		for i in range(1,len(size_hidden)):
-            self.weights.append(np.random.random([size_hidden[i-1],size_hidden[i]]))
-            self.delta_hidden.append( = np.zeros(size_hidden))  #error for one neiron, and after local gragient
+		for i in range(1,len(self.size_hidden)):
+            self.weights.append(np.random.random([size_hidden[i-1],self.size_hidden[i]]))
+            self.delta_hidden.append( = np.zeros(self.size_hidden))  #error for one neiron, and after local gragient
             self.bias_h.append(np.random.random_sample())
-            self.train_values_h.append(np.zeros(size_hidden[i]))#last calculate out of neiron
+            self.train_values_h.append(np.zeros(self.size_hidden[i]))#last calculate out of neiron
 			
         #out layer
-        self.weights1 = np.random.random([size_hidden[-1], size_out])
+        self.weights_out = np.random.random([self.size_hidden[-1], size_out])
         self.delta_out = np.zeros(size_out)
         self.bias_out = np.random.random_sample()
         self.train_values_out = np.zeros(size_out)
@@ -59,13 +59,19 @@ class NN:
         if(len(X)!= self.size_in):
             print("Bad len input")
             return 0
-        for j in range(len(size_hidden)):
-            self.train_values_h[j] = np.dot(self.weights.T,X)
+
+        self.train_values_h[0] = np.dot(self.weights[0].T,X)
+        self.train_values_h[0] += self.bias_h[0]
+        for i in range(0,self.size_hidden[0] ):
+            self.train_values_h[0][i] = sigmoid(self.train_values_h[0][i])
+
+        for j in range(1,len(self.size_hidden)):
+            self.train_values_h[j] = np.dot(self.weights[i].T,self.train_values_h[j-1] )
             self.train_values_h[j] += self.bias_h[j]
-            for i in range(0,self.size_hidden ):
-                self.train_values_h[i] = sigmoid(self.train_values_h[i])
+            for i in range(0,self.size_hidden):
+                self.train_values_h[j][i] = sigmoid(self.train_values_h[j][i])
         
-        self.train_values_out = np.dot(self.weights1.T,self.train_values_h)
+        self.train_values_out = np.dot(self.weights[-1].T,self.train_values_h[-1])
         self.train_values_out += self.bias_out
         for i in range(0,self.size_out ):
             self.train_values_out[i] = sigmoid(self.train_values_out[i])
@@ -74,11 +80,15 @@ class NN:
         self.E_out = sum(self.delta_out*self.delta_out/2)
         self.delta_out = self.delta_out  * self.train_values_out* ( 1 - self.train_values_out)
         
-        self.delta_hidden = np.dot(self.delta_out,self.weights1.T)
-        self.delta_hidden = self.delta_hidden  * self.train_values_h * ( 1- self.train_values_h)
-        
-        self.weights1 = self.weights1*0.9999 - coef * np.dot(self.train_values_h[:,None],self.delta_out[:,None].T)
-        self.weights0 = self.weights0*0.9999 - coef * np.dot(X[:,None],self.delta_hidden[:,None].T)
+        self.delta_hidden[-1] = np.dot(self.delta_out,self.weights[-1].T)
+        self.delta_hidden[-1] = self.delta_hidden  * self.train_values_h[-1] * ( 1- self.train_values_h[-1])
+		for j in range(len(self.size_hidden),0,-1):
+			self.delta_hidden[j] = np.dot(self.delta_out,self.weights[-1].T)
+			self.delta_hidden[j] = self.delta_hidden[j]  * self.train_values_h[-1] * ( 1- self.train_values_h[-1])
+
+        self.weights_out = self.weights_out*0.9999 - coef * np.dot(self.train_values_h[-1][:,None],self.delta_out[:,None].T)
+		for i in range(len(self.size_hidden),0,-1):
+			self.weights[i] = self.weights[i]*0.9999 - coef * np.dot(X[:,None],self.delta_hidden[:,None].T)
         return 1
 
 data = pandas.read_csv('train.csv')
@@ -92,7 +102,7 @@ from time import time
 t = time()
 
 
-MyNN = NN( 784,150,10)
+MyNN = NN( 784,[150],10)
 y_temp = np.zeros(10)
 
 
