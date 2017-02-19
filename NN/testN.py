@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 import pandas
-alfa = 1/100.0 # 
-def sigmoid(x):
+
+
+def sigmoid(x, alfa = 1/7.0):
     return 1/(1+np.exp(-x*alfa))
 
 class NN:
@@ -52,7 +53,7 @@ class NN:
         for j in range(1,len(self.size_hidden)):
             self.train_values_h[j] = np.dot(self.weights[j].T,self.train_values_h[j-1] )
             self.train_values_h[j] += self.bias_h[j]
-            for i in range(0,len(self.size_hidden)):
+            for i in range(0,self.size_hidden[j]):
                 self.train_values_h[j][i] = sigmoid(self.train_values_h[j][i])
         self.train_values_out = np.dot(self.weights_out.T,self.train_values_h[-1])
  
@@ -66,7 +67,7 @@ class NN:
         if(len(X)!= self.size_in):
             print("Bad len input")
             return 0
-
+        
         self.train_values_h[0] = np.dot(self.weights[0].T,X)
         self.train_values_h[0] += self.bias_h[0]
         for i in range(0,self.size_hidden[0] ):
@@ -75,15 +76,9 @@ class NN:
         for j in range(1,len(self.size_hidden)):
             self.train_values_h[j] = np.dot(self.weights[j].T,self.train_values_h[j-1] )
             self.train_values_h[j] += self.bias_h[j]
-            for i in range(0,len(self.size_hidden)):
+            for i in range(0,self.size_hidden[j]):
                 self.train_values_h[j][i] = sigmoid(self.train_values_h[j][i])
         
-        #print self.weights[-1].shape
-       # print self.weights[0].shape
-      #  print self.weights[1].shape
-     #   print self.train_values_h[-1].shape
-    #    print self.train_values_h[0].shape
-   #     print self.train_values_h[1].shape
         self.train_values_out = np.dot(self.weights_out.T,self.train_values_h[-1])
  
         self.train_values_out += self.bias_out
@@ -92,13 +87,13 @@ class NN:
       
         self.delta_out = -(y - self.train_values_out)
         self.E_out = sum(self.delta_out*self.delta_out/2)
-        self.delta_out = self.delta_out  * self.train_values_out* ( 1 - self.train_values_out)
+        self.delta_out = self.delta_out  * self.train_values_out* ( 1.0 - self.train_values_out)
         
         self.delta_hidden[-1] = np.dot(self.delta_out,self.weights_out.T)
-        self.delta_hidden[-1] = self.delta_hidden[-1]  * self.train_values_h[-1] * ( 1- self.train_values_h[-1])
+        self.delta_hidden[-1] = self.delta_hidden[-1]  * self.train_values_h[-1] * ( 1.0- self.train_values_h[-1])
         for j in range(len(self.size_hidden)-2 ,-1 ,-1):
             self.delta_hidden[j] = np.dot(self.delta_hidden[j+1],self.weights[j+1].T)
-            self.delta_hidden[j] = self.delta_hidden[j]  * self.train_values_h[j] * ( 1- self.train_values_h[j])
+            self.delta_hidden[j] = self.delta_hidden[j]  * self.train_values_h[j] * ( 1.0- self.train_values_h[j])
 
         self.weights_out = self.weights_out*0.9999 - coef * np.dot(self.train_values_h[-1][:,None],self.delta_out[:,None].T)
         
@@ -120,7 +115,7 @@ from time import time
 t = time()
 
 
-MyNN = NN( 784,[100],10)
+MyNN = NN( 784,[100,150],10)
 y_temp = np.zeros(10)
 
 
@@ -139,7 +134,7 @@ for i in range(50,60):
     print MyNN.predict(X_train[i])
     print y_train[i]    
 
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 acc = 0.0 
 num = np.zeros(10)
@@ -148,7 +143,8 @@ for i in np.random.randint(42000, size = 1000):
     acc+=1
     num[y_train[i]]+=1
    else:
-        imgplot = plt.imsave( '%d' % i ,np.reshape(X_train[i],(28,28)))
+#        imgplot = plt.imsave( '%d' % i ,np.reshape(X_train[i],(28,28)))
+          acc+=0.0
 print "accurance:", acc/1000
 print num
 print "time"
