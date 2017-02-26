@@ -3,8 +3,10 @@ import numpy as np
 import pandas
 
 
-def sigmoid(x, alfa = 1/7.0):
-    return 1/(1+np.exp(-x*alfa))
+def sigmoid(x, alfa = 1/10.0, deriv = False):
+    if (deriv == False):
+         return 1.0/(1.0+np.exp(-x*alfa))
+    return x*(1.0-x)
 
 class NN:
     "neiral network direct propagation(feedforward)"
@@ -87,20 +89,22 @@ class NN:
       
         self.delta_out = -(y - self.train_values_out)
         self.E_out = sum(self.delta_out*self.delta_out/2)
-        self.delta_out = self.delta_out  * self.train_values_out* ( 1.0 - self.train_values_out)
-        
+        #self.delta_out = self.delta_out  * self.train_values_out* ( 1.0 - self.train_values_out)
+        self.delta_out = self.delta_out  * sigmoid(self.train_values_out, deriv = True)
+
         self.delta_hidden[-1] = np.dot(self.delta_out,self.weights_out.T)
-        self.delta_hidden[-1] = self.delta_hidden[-1]  * self.train_values_h[-1] * ( 1.0- self.train_values_h[-1])
+#        self.delta_hidden[-1] = self.delta_hidden[-1]  * self.train_values_h[-1] * ( 1.0- self.train_values_h[-1])
+        self.delta_hidden[-1] = self.delta_hidden[-1]  * sigmoid(self.train_values_h[-1], deriv = True)
         for j in range(len(self.size_hidden)-2 ,-1 ,-1):
             self.delta_hidden[j] = np.dot(self.delta_hidden[j+1],self.weights[j+1].T)
-            self.delta_hidden[j] = self.delta_hidden[j]  * self.train_values_h[j] * ( 1.0- self.train_values_h[j])
-
-        self.weights_out = self.weights_out*0.9999 - coef * np.dot(self.train_values_h[-1][:,None],self.delta_out[:,None].T)
+ #         self.delta_hidden[j] = self.delta_hidden[j]  * self.train_values_h[j] * ( 1.0- self.train_values_h[j])
+            self.delta_hidden[j] = self.delta_hidden[j]  * sigmoid(self.train_values_h[j], deriv = True)
+        self.weights_out = self.weights_out*1.0 - coef * np.dot(self.train_values_h[-1][:,None],self.delta_out[:,None].T)
         
         if (len(self.size_hidden)>1):
             for i in range(len(self.size_hidden)-1,0,-1):
-                self.weights[i] = self.weights[i]*0.9999 - coef * np.dot(self.train_values_h[i-1][:,None],self.delta_hidden[i][:,None].T)
-        self.weights[0] = self.weights[0]*0.9999 - coef * np.dot(X[:,None],self.delta_hidden[0][:,None].T)
+                self.weights[i] = self.weights[i]*1.0 - coef * np.dot(self.train_values_h[i-1][:,None],self.delta_hidden[i][:,None].T)
+        self.weights[0] = self.weights[0]*1.0 - coef * np.dot(X[:,None],self.delta_hidden[0][:,None].T)
 
         return 1
 
@@ -115,7 +119,7 @@ from time import time
 t = time()
 
 
-MyNN = NN( 784,[100,150],10)
+MyNN = NN( 784,[100],10)
 y_temp = np.zeros(10)
 
 
