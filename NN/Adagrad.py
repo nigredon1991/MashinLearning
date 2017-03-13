@@ -4,7 +4,7 @@ import pandas
 
 coef_dic = 1.0  # coefficient dicrement weights in all steps
 coef_lear = 0.7 #coef_learning
-coef_N = 0.70   # coefficient for Nesterov 
+coef_A = 1.0   # coefficient for Adagrad 
 alfa = 1/10.0
 
 
@@ -24,12 +24,14 @@ class NN:
         
         self.weights = []
         self.inc_w = [] # increment in all previos iteration learning
+        self.inc_c = [] # increment in current iteration
         self.delta_hidden = []
         self.bias_h = []
         self.train_values_h = []
 
         self.weights.append(np.random.random([size_in,self.size_hidden[0]]))
         self.inc_w.append(np.zeros([size_in,self.size_hidden[0]]))
+        self.inc_c.append(np.zeros([size_in,self.size_hidden[0]]))
         self.delta_hidden.append( np.zeros(self.size_hidden))  #error for one neiron, and after local gragient
         self.bias_h.append(np.random.random_sample())
         self.train_values_h.append(np.zeros(self.size_hidden[0]))#last calculate out of neiron
@@ -37,6 +39,7 @@ class NN:
         for i in range(1,len(self.size_hidden)):
             self.weights.append(np.random.random([size_hidden[i-1],self.size_hidden[i]]))
             self.inc_w.append(np.zeros([size_hidden[i-1],self.size_hidden[i]]))
+            self.inc_c.append(np.zeros([size_hidden[i-1],self.size_hidden[i]]))
             self.delta_hidden.append( np.zeros(self.size_hidden))  #error for one neiron, and after local gragient
             self.bias_h.append(np.random.random_sample())
             self.train_values_h.append(np.zeros(self.size_hidden[i]))#last calculate out of neiron
@@ -44,6 +47,7 @@ class NN:
         #out layer
         self.weights_out = np.random.random([self.size_hidden[-1], size_out])
         self.inc_w_out = np.zeros([self.size_hidden[-1], size_out])
+        self.inc_c_out = np.zeros([self.size_hidden[-1], size_out])
         self.delta_out = np.zeros(size_out)
         self.bias_out = np.random.random_sample()
         self.train_values_out = np.zeros(size_out)
@@ -108,15 +112,18 @@ class NN:
             self.delta_hidden[j] = np.dot(self.delta_hidden[j+1],self.weights[j+1].T)
  #         self.delta_hidden[j] = self.delta_hidden[j]  * self.train_values_h[j] * ( 1.0- self.train_values_h[j])
             self.delta_hidden[j] = self.delta_hidden[j]  * sigmoid(self.train_values_h[j], deriv = True)
-        self.inc_w_out = self.inc_w_out * coef_N + np.dot(self.train_values_h[-1][:,None],self.delta_out[:,None].T)
-        self.weights_out = self.weights_out*coef_dic - coef * self.inc_w_out 
+        self.inc_c_out = np.dot(self.train_values_h[-1][:,None],self.delta_out[:,None].T)
+        self.inc_w_out = self.inc_w_out * coef_A + (self.inc_c_out)**2
+        self.weights_out = self.weights_out*coef_dic - coef * self.inc_w_out * self.inc_c_out/np.sqrt(self.inc_w_out+0.00000001)
         
         if (len(self.size_hidden)>1):
             for i in range(len(self.size_hidden)-1,0,-1):
-                self.inc_w[i] = self.inc_w[i] * coef_N + np.dot(self.train_values_h[i-1][:,None],self.delta_hidden[i][:,None].T)
-                self.weights[i] = self.weights[i]*1.0 - coef * self.inc_w[i]
-        self.inc_w[0] = self.inc_w[0] * coef_N +  np.dot(X[:,None],self.delta_hidden[0][:,None].T)
-        self.weights[0] = self.weights[0]*coef_dic - coef * self.inc_w[0]
+                self.inc_c[i] = np.dot(self.train_values_h[i-1][:,None],self.delta_hidden[i][:,None].T)
+                self.inc_w[i] = self.inc_w[i] * coef_A + (self.inc_c[i])**2
+                self.weights[i] = self.weights[i]*1.0 - coef * self.inc_c[i] / np.sqrt(self.inc_w[i]+ 0.00000001)
+        self.inc_c[0] = np.dot(X[:,None],self.delta_hidden[0][:,None].T)
+        self.inc_w[0] = self.inc_w[0] * coef_A +  (self.inc_c[0])**2
+        self.weights[0] = self.weights[0]*coef_dic - coef * self.inc_c[0] /np.sqrt(self.inc_w[0]+0.000000001)
 
         return 1
 
@@ -125,14 +132,14 @@ y_train = data["label"] # 42000
 
 X_train = data.drop("label", axis = 1) # 42000 * 784
 X_train = X_train.as_matrix()
-#X_train[X_train<100] = 0   #normalization
-#X_train[X_train>1] = 1
-X_train = X_train/250.0
+X_train[X_train<100] = 0   #normalization
+X_train[X_train>1] = 1
+#X_train = X_train/250.0
 from time import time
 t = time()
 
 
-MyNN = NN( 784,[300,100],10)
+MyNN = NN( 784,[100],10)
 y_temp = np.zeros(10)
 
 
