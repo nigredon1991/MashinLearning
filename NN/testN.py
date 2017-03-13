@@ -119,8 +119,8 @@ for i in np.random.randint(42000, size = 1000):
    if(np.argmax(MyNN.predict(X_train[i])) == y_train[i]):
     acc+=1
     num[y_train[i]]+=1
-   else:
-        imgplot = plt.imsave( '%d' % i ,np.reshape(X_train[i],(28,28)))
+#   else:
+#        imgplot = plt.imsave( '%d' % i ,np.reshape(X_train[i],(28,28)))
 print "accurance:", acc/1000
 print num
 print "time"
