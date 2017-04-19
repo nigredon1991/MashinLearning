@@ -4,7 +4,7 @@ import pandas
 
 coef_dic = 1.0  # coefficient dicrement weights in all steps
 coef_lear = 0.7 #coef_learning
-coef_1 = 0.75   # coefficient for Adadelta
+coef_1 = 0.75   # coefficient for Adam
 coef_2 = 0.75
 alfa = 1/10.0
 
@@ -160,11 +160,18 @@ t = time()
 
 MyNN = NN( 784,[100],10)
 y_temp = np.zeros(10)
-
+lear = 0
 step_c = 0
 for i in np.random.randint(42000, size = 30000):
     y_temp[y_train[i]] = 1
     MyNN.learning(X = X_train[i],y = y_temp,coef =0.7,t = step_c)
+    if ( np.argmax(MyNN.predict(X = X_train[i])) == y_train[i]):
+        lear +=1
+        if(lear == 500):
+            print "step_c=", step_c 
+            break
+    else:
+        lear -=1
     step_c+=1
     y_temp[y_train[i]] = 0
 

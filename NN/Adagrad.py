@@ -4,7 +4,7 @@ import pandas
 
 coef_dic = 1.0  # coefficient dicrement weights in all steps
 coef_lear = 0.7 #coef_learning
-coef_A = 0.95   # coefficient for Adagrad 
+coef_A = 0.95   # coefficient for Adagrad
 alfa = 1/10.0
 
 
@@ -112,17 +112,17 @@ class NN:
             self.delta_hidden[j] = self.delta_hidden[j]  * sigmoid(self.train_values_h[j], deriv = True)
         
         self.inc_c_out = np.dot(self.train_values_h[-1][:,None],self.delta_out[:,None].T)        
-        self.inc_w_out = self.inc_w_out * coef_A + (1.0 - coef_A)*(self.inc_c_out)**2
+        self.inc_w_out = self.inc_w_out * coef_A + (self.inc_c_out)**2
         self.weights_out = self.weights_out*coef_dic - coef * self.inc_c_out/( 1e-6 + np.sqrt(self.inc_w_out))
 
         if (len(self.size_hidden)>1):
             for i in range(len(self.size_hidden)-1,0,-1):
                 self.inc_c[i] = np.dot(self.train_values_h[i-1][:,None],self.delta_hidden[i][:,None].T)
-                self.inc_w[i] = self.inc_w[i] * coef_A + (1.0 - coef_A)*(self.inc_c[i])**2
+                self.inc_w[i] = self.inc_w[i] * coef_A + (self.inc_c[i])**2
                 self.weights[i] = self.weights[i]*coef_dic - coef * self.inc_c[i] / (1e-6 + np.sqrt(self.inc_w[i]))
      
         self.inc_c[0] = np.dot(X[:,None],self.delta_hidden[0][:,None].T)
-        self.inc_w[0] = self.inc_w[0] * coef_A + (1.0 - coef_A)*(self.inc_c[0])**2
+        self.inc_w[0] = self.inc_w[0] * coef_A + (self.inc_c[0])**2
         self.weights[0] = self.weights[0]*coef_dic - coef * self.inc_c[0] /(1e-6 + np.sqrt(self.inc_w[0]))
 
         return self.E_out

@@ -3,9 +3,9 @@ import numpy as np
 import pandas
 
 coef_dic = 1.0  # coefficient dicrement weights in all steps
-coef_lear = 0.7 #coef_learning
-coef_A = 0.75   # coefficient for Adadelta
-alfa = 1/10.0
+
+coef_A = 0.7   # coefficient for Adadelta
+alfa = 1/100.0
 
 
 
@@ -112,7 +112,7 @@ class NN:
         self.delta_out = -(y - self.train_values_out)
         self.E_out = sum(self.delta_out*self.delta_out/2)
         self.delta_out = self.delta_out  * sigmoid(self.train_values_out, deriv = True)
-#        print self.E_out
+        #print self.E_out
         self.delta_hidden[-1] = np.dot(self.delta_out,self.weights_out.T)
         self.delta_hidden[-1] = self.delta_hidden[-1]  * sigmoid(self.train_values_h[-1], deriv = True)
         for j in range(len(self.size_hidden)-2 ,-1 ,-1):
@@ -124,7 +124,7 @@ class NN:
         self.inc_v_out = (np.sqrt(self.inc_x_out)+1e-6) * self.inc_f_out/(np.sqrt(self.inc_g_out)+1e-6)
         self.inc_x_out = coef_A * self.inc_x_out + (1.0-coef_A) * self.inc_v_out**2 
         #print self.inc_v_out
-        self.weights_out = self.weights_out*coef_dic - coef* self.inc_v_out
+        self.weights_out = self.weights_out*coef_dic + self.inc_v_out
 
         if (len(self.size_hidden)>1):
             for i in range(len(self.size_hidden)-1,0,-1):
@@ -134,9 +134,9 @@ class NN:
                 
                 self.inc_f[i] = np.dot(self.train_values_h[i-1][:,None],self.delta_hidden[i][:,None].T)
                 self.inc_g[i] = coef_A * self.inc_g[i] + (1.0 - coef_A) * self.inc_f[i]**2
-                self.inc_v[i] = (np.sqrt(self.inc_x[i])+1e-6) * self.inc_f[i]/(np.sqrt(self.inc_g[i])+1e-6)
+                self.inc_v[i] = (np.sqrt(self.inc_x[i]) + 1e-6) * self.inc_f[i]/(np.sqrt(self.inc_g[i])+1e-6)
                 self.inc_x[i] = coef_A * self.inc_x[i] + (1.0-coef_A) * self.inc_v[i]**2 
-                self.weights[i] = self.weights[i]*coef_dic - coef * self.inc_v[i]
+                self.weights[i] = self.weights[i]*coef_dic + self.inc_v[i]
      
 #        self.inc_c[0] = np.dot(X[:,None],self.delta_hidden[0][:,None].T)
 #        self.inc_w[0] = self.inc_w[0] * coef_A + (self.inc_c[0])**2
@@ -146,7 +146,7 @@ class NN:
         self.inc_g[0] = coef_A * self.inc_g[0] + (1.0 - coef_A) * self.inc_f[0]**2
         self.inc_v[0] = (np.sqrt(self.inc_x[0])+1e-6) * self.inc_f[0]/(np.sqrt(self.inc_g[0])+1e-6)
         self.inc_x[0] = coef_A * self.inc_x[0] + (1.0-coef_A) * self.inc_v[0]**2 
-        self.weights[0] = self.weights[0]*coef_dic - coef* self.inc_v[0]
+        self.weights[0] = self.weights[0]*coef_dic +  self.inc_v[0]
         
         return self.E_out
 
@@ -170,11 +170,11 @@ for i in np.random.randint(42000, size = 30000):
     y_temp[y_train[i]] = 1
     MyNN.learning(X = X_train[i],y = y_temp,coef =0.9)
     y_temp[y_train[i]] = 0
-
-for i in np.random.randint(42000, size = 2000):
-    y_temp[y_train[i]] = 1
-    MyNN.learning(X = X_train[i],y = y_temp,coef =0.5)
-    y_temp[y_train[i]] = 0
+#
+#for i in np.random.randint(42000, size = 2000):
+#    y_temp[y_train[i]] = 1
+#    MyNN.learning(X = X_train[i],y = y_temp,coef =0.5)
+#    y_temp[y_train[i]] = 0
 
 
 for i in range(50,60):

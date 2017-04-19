@@ -2,6 +2,8 @@
 import numpy as np
 import pandas
 
+featuresMap = 10
+n_matr = 3
 
 def sigmoid(x, alfa = 1/10.0, deriv = False):
     if (deriv == False):
@@ -10,13 +12,15 @@ def sigmoid(x, alfa = 1/10.0, deriv = False):
 
 class NN:
     "neiral network direct propagation(feedforward)"
-    def __init__(self, size_in, size_hidden, size_out):
+    def __init__(self, size_in, size_hidden, size_out, ConvL = [1]):
         #initialization
         self.size_in = size_in
         self.size_hidden = size_hidden# example: size = np.array([100,150])
-        self.size_out = size_out
+		self.size_out = size_out      # all matrix n*n
         #hidden layers
-        
+        if( 1 in ConvL):
+		    size_hidden[0]= (np.sqrt(size_in) - n_matr+1)**2 * featuresMap
+		
         self.weights = []
         self.delta_hidden = []
         self.bias_h = []
@@ -46,7 +50,7 @@ class NN:
         if(len(X)!= self.size_in):
             print("Bad len input")
             return 0
-
+# x.reshape((28,28))[[np.array([[1,1,1],[2,2,2],[3,3,3]])],np.array([[1,2,3],[1,2,3],[1,2,3]])]
         self.train_values_h[0] = np.dot(self.weights[0].T,X)
         self.train_values_h[0] += self.bias_h[0]
         for i in range(0,self.size_hidden[0] ):
