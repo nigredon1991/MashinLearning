@@ -2,7 +2,7 @@
 import numpy as np
 import pandas
 
-featuresMap = 10
+featuresMap = 15
 n_matr = 3
 
 def sigmoid(x, alfa = 1/10.0, deriv = False):
@@ -45,12 +45,17 @@ class NN:
         
         self.E_out = np.zeros(size_out)# Error in last repeat for out neiral network
 
+	def convolution(x,y,core):#свёртка - что мы получим в train_values на свёртке вокруг элемента (x,y) помноженному на ядро
+		return np.multiply()
+		
     def predict(self,X): # X - input example
     #prediction out of NN
         if(len(X)!= self.size_in):
             print("Bad len input")
             return 0
 # x.reshape((28,28))[[np.array([[1,1,1],[2,2,2],[3,3,3]])],np.array([[1,2,3],[1,2,3],[1,2,3]])]
+
+		
         self.train_values_h[0] = np.dot(self.weights[0].T,X)
         self.train_values_h[0] += self.bias_h[0]
         for i in range(0,self.size_hidden[0] ):
