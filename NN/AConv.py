@@ -2,9 +2,9 @@ import numpy as np
 import pandas
 from  itertools import product 
 #[(i,j) for i,j in iter.permutations(range(10),2)]
-featuresMap = 10
+featuresMap = 8
 n_matr = 3
-alfa = 1.0/200.0
+alfa = 1.0/100.0
 
 def sigmoid(x, alfa = 1/10.0, deriv = False):
     if (deriv == False):
@@ -20,9 +20,13 @@ def convolutional(X, core):
     out = np.array([sigmoid (X[i-1,j+1] * core[0,0] + X[i,j+1] * core[0,1] + X[i+1,j+1] * core[0,2] + X[i-1,j] * core[1,0] + X[i,j] * core[1,1] + X[i+1,j] * core[1,2] + X[i-1,j-1] * core[2,0] + X[i,j-1] * core[2,1] + X[i+1,j-1] * core[2,2]) for i,j in product(range(1,27),repeat = 2) ])
     return out
 
-def convolutional_back(X,k):
-    i = k[0]+1
-    j = k[1]+1
+def convolutional_back(X,k, low = False):
+    if (low== True):
+        i = k[0]-1
+        j = k[1]-1
+    else:
+        i = k[0]+1
+        j = k[1]+1
     #print i,j
     #print  np.array (X[i-1,j+1] )
     return np.array([ [X[i-1,j+1] ,  X[i,j+1] , X[i+1,j+1] ] , [X[i-1,j], X[i,j] , X[i+1,j] ] ,  [X[i-1,j-1], X[i,j-1] ,X[i+1,j-1] ]])
@@ -34,19 +38,21 @@ class CNN:
         self.size_in = size_in
         self.size_out = size_out
         self.size_c = featuresMap*26*26
-        self.weights_c = np.random.random([featuresMap,n_matr,n_matr])
+        self.weights_c = np.random.random([featuresMap,n_matr,n_matr])-0.5
         self.train_values_c = np.zeros([featuresMap,26,26])
         self.bias_c  = np.random.random_sample()
         self.delta_c = np.zeros([featuresMap,26,26])
-        self.delta_conv = np.zeros(featuresMap)
+        #self.delta_conv = np.zeros(featuresMap)
 
-        self.weights_p = np.random.random([featuresMap,n_matr,n_matr])
-        self.train_values_p = np.zeros([featuresMap,26,26])
-        self.bias_p  = np.random.random_sample()
-        self.delta_p = np.zeros([featuresMap,26,26])
+       # self.weights_p = np.random.random([featuresMap,n_matr,n_matr])
+      #  self.train_values_p = np.zeros([featuresMap,26,26])
+      #  self.bias_p  = np.random.random_sample()
+      #  self.delta_p = np.zeros([featuresMap,26,26])
 
         
-        self.weights_out = np.random.random([featuresMap*26*26,size_out])
+        self.weights_out = np.random.random([featuresMap*26*26,size_out])-0.5
+        #self.out_drop = np.random.randint(2, size = (featuresMap*26*26, size_out))
+        #self.weights_out = self.weights_out * self.out_drop
         self.train_values_out = np.zeros(size_out)
         self.bias_out  = np.random.random_sample()
         self.delta_out = np.zeros(size_out)
@@ -75,11 +81,10 @@ class CNN:
         self.delta_c = self.delta_c * sigmoid(self.train_values_c, deriv = True)
         #self.delta_c = self.delta_c * X.reshape([28,28])
         #self.delta_conv = np.array([ np.argmax(elem) for elem in self.delta_c])
-        
     
         self.weights_out = self.weights_out*1.0 - coef * np.dot(self.train_values_c.reshape(self.size_c)[:,None],self.delta_out[:,None].T)
-        
-        self.weights_c = np.array([weights_old - 2*coef * convolutional_back(X.reshape([28,28]), np.unravel_index(delta.argmax(), delta.shape)) for delta,weights_old in zip (self.delta_c, self.weights_c)])
+        #self.weights_out = self.weights_out * self.out_drop# convolutional_back(delta.reshape([26,26]), np.unravel_index(delta.argmax(), delta.shape), low = True)
+        self.weights_c = np.array([weights_old - coef * convolutional_back(X.reshape([28,28]), np.unravel_index(delta.argmax(), delta.shape))* delta.argmax() for delta,weights_old in zip (self.delta_c, self.weights_c)])
 
 data = pandas.read_csv('train.csv')
 y_train = data["label"] # 42000
@@ -127,6 +132,7 @@ for i in np.random.randint(42000, size = 100):
         num[y_train[i]]+=1
 
 print "accurance:", acc/100
-print num/sum
+print num
+print sum
 print "time"
 print time()-t
