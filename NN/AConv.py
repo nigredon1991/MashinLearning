@@ -2,9 +2,9 @@ import numpy as np
 import pandas
 from  itertools import product 
 #[(i,j) for i,j in iter.permutations(range(10),2)]
-featuresMap = 2
+featuresMap = 10
 n_matr = 3
-alfa = 1.0/100.0
+alfa = 1.0/200.0
 
 def sigmoid(x, alfa = 1/10.0, deriv = False):
     if (deriv == False):
@@ -20,6 +20,13 @@ def convolutional(X, core):
     out = np.array([sigmoid (X[i-1,j+1] * core[0,0] + X[i,j+1] * core[0,1] + X[i+1,j+1] * core[0,2] + X[i-1,j] * core[1,0] + X[i,j] * core[1,1] + X[i+1,j] * core[1,2] + X[i-1,j-1] * core[2,0] + X[i,j-1] * core[2,1] + X[i+1,j-1] * core[2,2]) for i,j in product(range(1,27),repeat = 2) ])
     return out
 
+def convolutional_back(X,k):
+    i = k[0]+1
+    j = k[1]+1
+    #print i,j
+    #print  np.array (X[i-1,j+1] )
+    return np.array([ [X[i-1,j+1] ,  X[i,j+1] , X[i+1,j+1] ] , [X[i-1,j], X[i,j] , X[i+1,j] ] ,  [X[i-1,j-1], X[i,j-1] ,X[i+1,j-1] ]])
+    
     
 class CNN:
     "convolutional neiral network direct propagation(feedforward)"
@@ -31,7 +38,7 @@ class CNN:
         self.train_values_c = np.zeros([featuresMap,26,26])
         self.bias_c  = np.random.random_sample()
         self.delta_c = np.zeros([featuresMap,26,26])
-        self.conv_delta = np.zeros([featuresMap,n_matr,n_matr])
+        self.delta_conv = np.zeros(featuresMap)
 
         self.weights_p = np.random.random([featuresMap,n_matr,n_matr])
         self.train_values_p = np.zeros([featuresMap,26,26])
@@ -67,11 +74,12 @@ class CNN:
         self.delta_c = np.dot(self.delta_out,self.weights_out.T).reshape([featuresMap,26,26])
         self.delta_c = self.delta_c * sigmoid(self.train_values_c, deriv = True)
         #self.delta_c = self.delta_c * X.reshape([28,28])
-        self.delta_conv = np.array([convolutional(X.reshape([28,28]), elem).reshape(26,26) for elem in self.weights_c])
+        #self.delta_conv = np.array([ np.argmax(elem) for elem in self.delta_c])
         
+    
         self.weights_out = self.weights_out*1.0 - coef * np.dot(self.train_values_c.reshape(self.size_c)[:,None],self.delta_out[:,None].T)
         
-        self.weights_c = np.array([weights_old*0.97 - coef * delta for delta,weights_old in zip (self.delta_c, self.delta_conv)])
+        self.weights_c = np.array([weights_old - 2*coef * convolutional_back(X.reshape([28,28]), np.unravel_index(delta.argmax(), delta.shape)) for delta,weights_old in zip (self.delta_c, self.weights_c)])
 
 data = pandas.read_csv('train.csv')
 y_train = data["label"] # 42000
