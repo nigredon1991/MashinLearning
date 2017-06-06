@@ -86,7 +86,7 @@ class NN:
         self.weights_out = self.weights_out*0.9999 - coef * np.dot(self.train_values_h1[:,None],self.delta_out[:,None].T)
         self.weights1 = self.weights1*0.9999 - coef * np.dot(self.train_values_h0[:,None],self.delta_hidden1[:,None].T)
         self.weights0 = self.weights0*0.9999 - coef * np.dot(X[:,None],self.delta_hidden0[:,None].T)
-        return 1
+        return self.E_out
 
 data = pandas.read_csv('train.csv')
 y_train = data["label"] # 42000
@@ -100,16 +100,25 @@ t = time()
 MyNN = NN( 784,100,50,10)
 y_temp = np.zeros(10)
 
-for i in np.random.randint(42000, size = 34000):
-    y_temp[y_train[i]] = 1
-    MyNN.learning(X = X_train[i],y = y_temp,coef =0.8)
-    y_temp[y_train[i]] = 0
+from matplotlib import pyplot as plt
+from math import ceil, floor
+mapX = np.arange(0, 5000)
+mapY = np.zeros(5000)
+numY = 0 
 
+
+for i in np.random.randint(42000, size = 3000):
+    y_temp[y_train[i]] = 1
+    mapY[numY] =  MyNN.learning(X = X_train[i],y = y_temp,coef =0.8)
+    numY = numY+1
+    y_temp[y_train[i]] = 0
+    
 for i in np.random.randint(42000, size = 2000):
     y_temp[y_train[i]] = 1
-    MyNN.learning(X = X_train[i],y = y_temp,coef =0.3)
+    mapY[numY] =  MyNN.learning(X = X_train[i],y = y_temp,coef =0.3)
+    numY = numY+1
     y_temp[y_train[i]] = 0
-
+    
 
 for i in range(50,60):
     print MyNN.predict(X_train[i])
@@ -118,13 +127,17 @@ for i in range(50,60):
 acc = 0.0 
 num = np.zeros(10)
 sum = np.zeros(10)
-for i in np.random.randint(42000, size = 1000):
+for i in np.random.randint(42000, size = 100):
     sum[y_train[i]]+=1
     if(np.argmax(MyNN.predict(X_train[i])) == y_train[i]):
-		acc+=1
+        acc+=1
         num[y_train[i]]+=1
 
-print "accurance:", acc/1000
+        
+plt.plot(numX,numY,'ro')
+plt.show()        
+
+print "accurance:", acc/100
 print sum/num
 print "time"
 print time()-t

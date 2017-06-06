@@ -3,7 +3,7 @@ import numpy as np
 import pandas
 
 featuresMap = 15
-n_matr = 3
+n_matr = 3#don't change
 
 def sigmoid(x, alfa = 1/10.0, deriv = False):
     if (deriv == False):
@@ -16,11 +16,12 @@ class NN:
         #initialization
         self.size_in = size_in
         self.size_hidden = size_hidden# example: size = np.array([100,150])
-		self.size_out = size_out      # all matrix n*n
+        self.size_out = size_out      # all matrix n*n
+		
         #hidden layers
         if( 1 in ConvL):
 		    size_hidden[0]= (np.sqrt(size_in) - n_matr+1)**2 * featuresMap
-		
+		self.edge = np.sqrt(self.size_in)
         self.weights = []
         self.delta_hidden = []
         self.bias_h = []
@@ -45,16 +46,19 @@ class NN:
         
         self.E_out = np.zeros(size_out)# Error in last repeat for out neiral network
 
-	def convolution(x,y,core):#свёртка - что мы получим в train_values на свёртке вокруг элемента (x,y) помноженному на ядро
-		return np.multiply()
+	def convolution(x,y,num, core):#свёртка - что мы получим в train_values на свёртке вокруг элемента (x,y) помноженному на ядро
+		'''num - numeral of layer, core - matrix n_matr*n_matr '''
+		#self.weights[num][[np.array([[y+1,y+1,y+1],[y,y,y],[y-1,y-1,y-1]])],np.array([[x-1,x,x+1],[x-1,x,x+1],[x-1,x,x+1]])]
+		if(x==0 or x ==self.edge-1 or y == 0 or y ==self.edge-1):
+		    return 0
+		return np.sum(np.multiply(self.weights[num][[np.array([[y+1,y+1,y+1],[y,y,y],[y-1,y-1,y-1]])],np.array([[x-1,x,x+1],[x-1,x,x+1],[x-1,x,x+1]])],core))
 		
     def predict(self,X): # X - input example
     #prediction out of NN
-        if(len(X)!= self.size_in):
-            print("Bad len input")
-            return 0
-# x.reshape((28,28))[[np.array([[1,1,1],[2,2,2],[3,3,3]])],np.array([[1,2,3],[1,2,3],[1,2,3]])]
 
+# x.reshape((28,28))[[np.array([[1,1,1],[2,2,2],[3,3,3]])],np.array([[1,2,3],[1,2,3],[1,2,3]])]
+        for i in range(1, featuresMap+1):
+			 
 		
         self.train_values_h[0] = np.dot(self.weights[0].T,X)
         self.train_values_h[0] += self.bias_h[0]
@@ -145,7 +149,7 @@ lear = 0
 step_c = 0
 for i in np.random.randint(42000, size = 30000):
     y_temp[y_train[i]] = 1
-    MyNN.learning(X = X_train[i],y = y_temp,coef =0.7)
+    MyNN.learning(X = X_train[i].reshape([28,28]),y = y_temp,coef =0.7)
     if ( np.argmax(MyNN.predict(X = X_train[i])) == y_train[i]):
         lear +=1
         if(lear == 1000):
@@ -158,9 +162,9 @@ for i in np.random.randint(42000, size = 30000):
 
 
 
-for i in range(50,60):
-    print MyNN.predict(X_train[i])
-    print y_train[i]    
+#for i in range(50,60):
+#    print MyNN.predict(X_train[i])
+#    print y_train[i]    
 
 #import matplotlib.pyplot as plt
 

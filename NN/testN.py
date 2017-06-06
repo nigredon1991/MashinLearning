@@ -119,19 +119,34 @@ from time import time
 t = time()
 
 
+#MyNN = NN( 784,[100],10)
+#y_temp = np.zeros(10)
+#for i in np.random.randint(42000, size = 30000):
+#    y_temp[y_train[i]] = 1
+#    MyNN.learning(X = X_train[i],y = y_temp,coef =0.8)
+#    y_temp[y_train[i]] = 0
+#
+#for i in np.random.randint(42000, size = 2000):
+#    y_temp[y_train[i]] = 1
+#    MyNN.learning(X = X_train[i],y = y_temp,coef =0.3)
+#    y_temp[y_train[i]] = 0
 MyNN = NN( 784,[100],10)
 y_temp = np.zeros(10)
-
-
+lear = 0
+step_c = 0
 for i in np.random.randint(42000, size = 30000):
     y_temp[y_train[i]] = 1
-    MyNN.learning(X = X_train[i],y = y_temp,coef =0.8)
+    MyNN.learning(X = X_train[i],y = y_temp,coef =0.7)
+    if ( np.argmax(MyNN.predict(X = X_train[i])) == y_train[i]):
+        lear +=1
+        if(lear == 1000):
+            print "step_c=", step_c 
+            break
+    else:
+        lear -=1
+    step_c+=1
     y_temp[y_train[i]] = 0
 
-for i in np.random.randint(42000, size = 2000):
-    y_temp[y_train[i]] = 1
-    MyNN.learning(X = X_train[i],y = y_temp,coef =0.3)
-    y_temp[y_train[i]] = 0
 
 
 for i in range(50,60):
