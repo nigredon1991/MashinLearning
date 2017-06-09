@@ -149,7 +149,7 @@ class NN:
         self.weights[0] = self.weights[0]*coef_dic +  self.inc_v[0]
         
         return self.E_out
-
+'''
 data = pandas.read_csv('train.csv')
 y_train = data["label"] # 42000
 
@@ -196,3 +196,5 @@ print "accurance:", acc/1000
 print num
 print "time"
 print time()-t
+
+'''

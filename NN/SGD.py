@@ -68,6 +68,8 @@ class NN:
         self.weights0 = self.weights0*0.9999 - coef * np.dot(X[:,None],self.delta_hidden[:,None].T)
         return self.E_out 
 
+        
+      
 data = pandas.read_csv('train.csv')
 y_train = data["label"] # 42000
 
@@ -102,11 +104,11 @@ for i in np.random.randint(42000, size = 29999):
     j = j+1
     y_temp[y_train[i]] = 0
 '''
-for i in np.random.randint(42000, size = 2000):
-    y_temp[y_train[i]] = 1
-    mapY[numY] = MyNN.learning(X = X_train[i],y = y_temp,coef =0.3)
-    numY = numY+1
-    y_temp[y_train[i]] = 0
+#for i in np.random.randint(42000, size = 2000):
+#    y_temp[y_train[i]] = 1
+#    mapY[numY] = MyNN.learning(X = X_train[i],y = y_temp,coef =0.3)
+#    numY = numY+1
+#    y_temp[y_train[i]] = 0
 '''
 
 #for i in range(50,60):
@@ -120,8 +122,8 @@ print time()-t
 plt.axis([0,100, 0,50])
 plt.plot(mapX,mapY,'r+')
 #print mapY
-plt.show()
-
+#plt.show()
+plt.savefig(str(pandas).split('\'')[1])
 
 acc = 0.0 
 num = np.zeros(10)
@@ -133,4 +135,5 @@ for i in np.random.randint(42000, size = 1000):
 #        imgplot = plt.imsave( '%d' % i ,np.reshape(X_train[i],(28,28)))
 print "accurance:", acc/1000
 print num
+
 
