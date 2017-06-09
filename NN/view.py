@@ -42,6 +42,7 @@ for packet in packets:
         j = j+1
         y_temp[y_train[i]] = 0
 
+        
     print "time"
     print time()-t
 
